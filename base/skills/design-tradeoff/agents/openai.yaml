@@ -1,0 +1,6 @@
+interface:
+  display_name: "Design Tradeoff Analysis"
+  short_description: "Weighted architecture decision tradeoff analysis"
+  default_prompt: "Use $design-tradeoff to compare the architectural options for this decision and emit a scored tradeoff record."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,41 @@
+---
+name: docs-refresh
+description: 'Refresh repository guidance docs (AGENTS.md, CLAUDE.md, ARCHITECTURE.md, READMEs, onboarding/ADR pointers) from verified codebase evidence, fixing drift between docs and current code, commands, schemas, and CI. Produces an evidence-backed edit plan plus applied doc edits where the code-vs-doc mismatch is proven. Use when asked to update repo instructions, refresh architecture docs, sync docs with code, run a doc drift audit, fix stale CLAUDE.md/AGENTS.md/ARCHITECTURE.md, correct outdated commands or hot-path lists, or swarm-verify developer-workflow and architecture documentation. Do not trigger for writing brand-new feature or product docs from scratch, end-user/API reference generation, marketing/changelog copy, code review, or non-doc code changes (use code-review or simplify instead).'
+---
+
+# Docs Refresh
+
+## Overview
+
+Refresh a repository's developer-guidance docs so they match the code, not memory. Treat code, tests, CI/CD, schemas, and deploy files as the source of truth; docs are downstream and may be stale. Default to the project's own documentation hierarchy: deep structure lives in the canonical architecture doc (commonly `ARCHITECTURE.md`); workflow, commands, and pointers live in the short agent-guidance files (`AGENTS.md` / `CLAUDE.md`). Every factual claim you write or keep must be backed by a `file:line`, a command output, or an existing ADR — never by inference. The deliverable is an **evidence-backed edit plan** written to a file, plus the doc edits themselves once each mismatch is proven and (where the profile requires) approved.
+
+This skill runs unmodified with zero config and runs better with a profile. Read `references/` only when a step points you there. **Only load the reference files you need.**
+
+## Step 0 — Context-Absorption Prelude
+
+Run this before anything else, every invocation:
+
+1. **Note in-context guidance.** `AGENTS.md` / `CLAUDE.md` may already be loaded into your context — do not re-read what you already have; just confirm which file the project treats as canonical and which are short pointers.
+2. **Read the profile if present.** Look for `.agents/profiles/docs-refresh.md`. If it exists, apply its frontmatter knobs (`model`, `budget`, `fan_out`, `focus_paths`, `ignore_paths`, `canonical_doc`, `doc_targets`) and its `ADD` / `OVERRIDE base:<id>` / `SUPPRESS base:<id>` directives against the checklist in `references/checklist.md`.
+3. **Resolve commands and doc targets.** Precedence: profile values → introspect the repo (`package.json`, `pyproject.toml`, `Makefile`, `.github/workflows/`, `scripts/`, deploy YAML) → ask the user once if still ambiguous. Resolve which docs are in scope and which is canonical from the profile, then from the repo's own pointer map, then default to `ARCHITECTURE.md` canonical + `AGENTS.md`/`CLAUDE.md` as pointers.
+4. **Fall back to defaults, never fail.** With no profile and no obvious config, proceed with the defaults above. Absence of a profile is normal, not an error.
+
+## Workflow
+
+1. **Map the documentation contract.** Read the in-scope docs (canonical architecture doc, agent-guidance files, root onboarding/READMEs, and any ADRs relevant to the requested scope). Record: which file is canonical, which are short pointers, what top-level sections and pointer maps exist, and any repo-specific rules (staging-sync / freshness / "docs trust policy"). If the repo states a branch-freshness rule, honor it before auditing — auditing a stale tree manufactures phantom drift.
+
+2. **Capture repository state.** Run `git status --short` and `git diff --stat`. Identify unrelated dirty files up front so you never revert or restate an edit you did not make. If a freshness rule exists, run its check (e.g. `git fetch origin && git log --oneline HEAD..origin/<default>`); if behind, stop and surface it rather than auditing stale docs.
+
+3. **Decide single-pass vs swarm (budget gate).** Default to a single-pass audit by yourself — it is the leanest path and covers most refreshes. Launch the multi-agent doc-refresh swarm (`references/swarm-roles.md`) **only** when the user explicitly asks for a swarm/subagents/parallel agents, or when the scope is a whole-repo drift audit too large for one pass. Before any fan-out, do a **cost preflight**: state "this is ~N read-only subagents — proceed?" and honor the profile's `fan_out` (`allowed` → proceed; `ask` → wait for a yes; `never` → stay single-pass) and `budget`/`model`. On `gpt-5.4`, prefer the single-pass deterministic path and lean on greps; on `gpt-5.5`, more parallel prose latitude is fine. Swarm agents are **read-only**: they return evidence + proposed edits, never file changes.
+
+4. **Gather drift evidence.** For each in-scope claim, verify against code. Cross-check (a) commands in guidance docs against `package.json`/`pyproject.toml`/`Makefile`/CI; (b) hot-path / key-file lists against the filesystem (`git ls-files`); (c) architecture sections against actual routing, services, schemas, migrations, and deploy config; (d) any contract/schema/event claim against BOTH producer and consumer sites (see `references/checklist.md` `base:contract-both-sides`). Record each finding as `claim → evidence (file:line or command) → verdict (accurate | stale | missing | misleading)`. Do not write a claim you cannot back.
+
+5. **Write the edit plan to a file (output discipline).** Stream the full audit into `docs-refresh-plan.md` (or a profile-specified path) incrementally as you go: every finding with its evidence, the proposed edit, and the target file/section — use the entry template in `references/doc-hierarchy.md`. Keep only a tight summary for the inline channel (counts by verdict + the top edits) — never paste the whole plan back into the conversation. Resolve any agent-to-agent or doc-to-doc conflicts by re-checking source code directly; code wins over any doc and over any agent's claim.
+
+6. **Pause for approval before editing (human gate).** Editing docs is a write step. Present the inline summary of the plan (counts by verdict, the highest-impact edits, anything uncertain) and get a go-ahead before applying edits — unless the user already said "just fix it" or the profile authorizes autonomous edits. If a finding is ambiguous or unverifiable, list it as an open question instead of guessing.
+
+7. **Apply edits, canonical doc first.** Edit `ARCHITECTURE.md` (or the discovered canonical doc) first for structural truth, then update the pointer docs (`AGENTS.md`/`CLAUDE.md`) for workflow, commands, hot paths, quality gates, and section pointers. Use the routing rule and phrasing rules in `references/doc-hierarchy.md` to decide what belongs where: push deep detail down into the canonical doc and keep the pointer docs short and current — fix a stale pointer rather than duplicating a long explanation. Preserve intentional complexity and load-bearing warnings the docs flag; never delete a warning you cannot prove is obsolete. Touch only the docs in scope; leave unrelated dirty files alone.
+
+8. **Validate every reference (the correctness floor).** Grep each file path, function/symbol name, command, script, and section heading you wrote or kept to confirm it exists (`git ls-files`, `grep -rn`, run `--help`/`--dry-run` for commands where safe). Confirm the pointer-map section names in `AGENTS.md`/`CLAUDE.md` still match the canonical doc's actual headings. A doc that points at a renamed/removed file is a regression you just shipped — every reference must resolve.
+
+9. **Self-check and quality gate.** Run `git diff --stat` plus targeted diffs on edited docs and self-review. Confirm: (a) every retained/added factual claim has `file:line` or command evidence — zero unverified assertions; (b) every referenced path/command/heading resolves (step 8); (c) the canonical-vs-pointer hierarchy is preserved and no deep detail leaked into a pointer doc; (d) no unrelated edit was introduced and no third-party warning was silently dropped; (e) the full plan is in the file and only a summary went inline. Then report: files edited, sections changed, evidence used, validation run, and unresolved/deferred questions. If nothing needed changing, say so and list the evidence checked — a clean audit is a valid result.

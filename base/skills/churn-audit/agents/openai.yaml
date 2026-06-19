@@ -1,0 +1,6 @@
+interface:
+  display_name: "Churn Audit"
+  short_description: "Churn-driven architecture hotspot advisory"
+  default_prompt: "Run $churn-audit to rank high-churn hotspots and produce an evidence-backed architecture advisory."
+policy:
+  allow_implicit_invocation: true

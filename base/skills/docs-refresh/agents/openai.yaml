@@ -1,0 +1,6 @@
+interface:
+  display_name: "Docs Refresh"
+  short_description: "Refresh repo docs from verified codebase evidence"
+  default_prompt: "Use $docs-refresh to audit and update this repo's AGENTS.md, CLAUDE.md, and ARCHITECTURE.md against the current code."
+policy:
+  allow_implicit_invocation: true

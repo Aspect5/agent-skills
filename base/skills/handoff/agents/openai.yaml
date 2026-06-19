@@ -1,0 +1,6 @@
+interface:
+  display_name: "Handoff"
+  short_description: "Verifiable session handoff for resuming work"
+  default_prompt: "Use $handoff to produce a verifiable session handoff with state, completed work, remaining steps, risks, and the exact next command."
+policy:
+  allow_implicit_invocation: true

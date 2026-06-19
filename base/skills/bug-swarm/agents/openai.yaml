@@ -1,0 +1,6 @@
+interface:
+  display_name: "Bug Swarm"
+  short_description: "Repro-first parallel bug repair tournament"
+  default_prompt: "Use $bug-swarm to reproduce this bug with a failing test, fan out diverse fix hypotheses, and ship the minimal correct diff or abstain with a diagnosis."
+policy:
+  allow_implicit_invocation: true
