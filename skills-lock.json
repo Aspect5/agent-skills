@@ -1,5 +1,5 @@
 {
-  "base_repo": "git@github.com:Aspect5/agent-skills.git",
+  "base_repo": "https://github.com/Aspect5/agent-skills.git",
   "version": "0.1.0",
   "comment": "Base skills are versioned here. Each project pins the base ref it consumes in ITS OWN repo (e.g. .agents/skills-lock.json), alongside its private profiles. Confidential stack/profile data never lives in this repo."
 }

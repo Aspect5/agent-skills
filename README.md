@@ -18,7 +18,7 @@ skills-lock.json       # which base version each project consumes
 Agents pull this repo for context and replicate the skills locally; a human can do the same:
 
 ```bash
-git clone git@github.com:Aspect5/agent-skills.git ~/src/agent-skills
+git clone https://github.com/Aspect5/agent-skills.git ~/src/agent-skills   # public — no auth needed
 cd ~/src/agent-skills && ./install.sh          # symlink base skills into ~/.codex/skills
 #                        ./install.sh --copy    # OR standalone copies (survive the repo moving)
 # then RESTART Codex to pick them up
@@ -26,7 +26,7 @@ cd ~/src/agent-skills && ./install.sh          # symlink base skills into ~/.cod
 
 `install.sh` replicates every `base/skills/*` into `$CODEX_HOME/skills` (default `~/.codex/skills`). Symlink mode (default) means one `git pull` updates every machine; `--copy` makes self-contained copies. Existing real dirs of the same name are backed up to `~/.codex/skills/.superseded/` first. See **`AGENTS.md`** for the agent-facing replication + tailoring contract.
 
-Private-repo alternative (Codex-native, one-off): `$skill-installer install https://github.com/Aspect5/agent-skills/tree/main/base/skills/<skill>` with `GITHUB_TOKEN` exported.
+Codex-native alternative (one-off, no auth — the repo is public): `$skill-installer install https://github.com/Aspect5/agent-skills/tree/main/base/skills/<skill>`.
 
 ## Per-project tailoring (no fork)
 
