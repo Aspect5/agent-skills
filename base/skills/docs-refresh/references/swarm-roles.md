@@ -5,7 +5,7 @@ Load this **only** when launching the multi-agent swarm — i.e. the user explic
 ## Before dispatching (budget gate)
 
 1. **Cost preflight.** State the count: "This dispatches ~5 read-only subagents — proceed?" Scale the count down for smaller scopes (a frontend-only refresh may need only the frontend + hygiene agents).
-2. **Honor the profile.** `fan_out: allowed` → proceed; `fan_out: ask` → wait for an explicit yes; `fan_out: never` → do not swarm, fold the roles into your own single pass. Cap subagent count against `budget`. On `gpt-5.4` prefer fewer agents + deterministic greps; on `gpt-5.5` more parallel prose is fine.
+2. **Honor the profile.** `fan_out: allowed` → proceed; `fan_out: ask` → wait for an explicit yes; `fan_out: never` → do not swarm, fold the roles into your own single pass. Cap subagent count against `budget`. On a cheaper model prefer fewer agents + deterministic greps; on a more capable model more parallel prose is fine.
 3. **Read-only contract.** Every agent is read-only. Ask for evidence + proposed doc edits, never direct file changes. You synthesize and apply edits after approval. Run agents in parallel when independent.
 
 Each agent returns: findings as `claim → file:line evidence → verdict (accurate | stale | missing | misleading)`, proposed edits with target file/section, and anything intentionally complex the docs should preserve.

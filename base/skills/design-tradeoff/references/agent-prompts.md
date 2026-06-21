@@ -5,7 +5,7 @@ generation, Step 7 stress-test). The single-pass default needs none of this — 
 play every role yourself. Before spawning any of these: **run the cost preflight**
 ("this is ~N subagents at <model>; proceed?") and honor the profile's `fan_out`
 knob. Cap total agents at **6** (≤4 analysts + ≤2 reviewers); use a large model
-(Opus / gpt-5.5-class) so the alternatives are real.
+(a strong model (Opus / a more capable model-class)) so the alternatives are real.
 
 > Only load this file when fan-out is actually approved.
 

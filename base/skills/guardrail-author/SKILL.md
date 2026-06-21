@@ -75,9 +75,8 @@ defaults and run unmodified with zero config.
    the wrong lifecycle point is worse than none). → ecosystem default last.
 4. **Fall back to defaults** when no profile and no override exist — the skill must
    run with zero config. Honor budget posture from the start: this is a
-   single-pass, single-agent skill by default (see Budget & fan-out); `model:
-   gpt-5.4` ⇒ prefer the scripted detector + library patterns over open-ended
-   regex authoring; `gpt-5.5` ⇒ more latitude to hand-craft a bespoke check.
+   single-pass, single-agent skill by default (see Budget & fan-out); a cheaper `model` ⇒ prefer the scripted detector + library patterns over open-ended
+   regex authoring; a more capable model ⇒ more latitude to hand-craft a bespoke check.
 
 ## Workflow
 
@@ -193,8 +192,8 @@ guardrail + its two tests is cheap and deterministic. Multi-agent fan-out is
 - Honor the profile `fan_out` knob: `never` → single-pass only; `ask` → state "this
   is ~N subagents, one per guardrail surface — proceed?" and wait; `allowed` →
   proceed but announce the count and cap it at the budget ceiling.
-- Honor `budget` and `model`: on `gpt-5.4` or a tight budget, stay single-pass and
-  lean on the scripted detector + catalog patterns; on `gpt-5.5` with headroom,
+- Honor `budget` and `model`: on a cheaper model or a tight budget, stay single-pass and
+  lean on the scripted detector + catalog patterns; on a more capable model with headroom,
   per-surface subagents and bespoke checks are fine. Each subagent owns exactly one
   surface and returns its three artifacts; one synthesis pass dedupes wiring and
   resolves hook collisions.

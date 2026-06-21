@@ -18,7 +18,8 @@ focus_paths: []                   # weight findings here higher
 ignore_paths: []                  # never flag (e.g. generated code)
 
 # Budget / model knobs — skills self-throttle on these.
-model: gpt-5.5                    # or gpt-5.4
+model: <your harness model id>   # tier is what matters — cheaper ⇒ lower-freedom, stronger ⇒ more latitude
+                                 #   Codex: gpt-5.4 / gpt-5.5 · Claude Code: claude-haiku-4-5 / claude-opus-4-8
 budget:
   period: day                    # day | month
   limit_usd: 100

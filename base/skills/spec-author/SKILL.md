@@ -68,9 +68,9 @@ unmodified with zero config and better with one.
    of config.
 
 Honor the budget posture from the start: `fan_out: never` ⇒ stay single-pass;
-`fan_out: ask` ⇒ run the cost preflight before any multi-agent step; `model: gpt-5.4`
+`fan_out: ask` ⇒ run the cost preflight before any multi-agent step; a cheaper `model`
 ⇒ prefer the lower-freedom, template-anchored path (fill the structured template,
-table-form criteria) over open-ended prose; `model: gpt-5.5` with headroom ⇒ more
+table-form criteria) over open-ended prose; a more capable `model` with headroom ⇒ more
 latitude in framing and edge-case reasoning.
 
 ## Workflow
@@ -191,8 +191,8 @@ independent sub-specs:
 - **Run a cost preflight first** and honor `fan_out`: `never` ⇒ stay single-pass and
   write the sub-specs sequentially; `ask` ⇒ state "this is ~N subagents, one per
   sub-surface — proceed?" and wait; `allowed` ⇒ proceed and announce the count.
-- Honor `budget` and `model`: on `gpt-5.4` or a tight budget, prefer the lean
-  single-pass template-fill; on `gpt-5.5` with headroom, more latitude is fine. Cap
+- Honor `budget` and `model`: on a cheaper model or a tight budget, prefer the lean
+  single-pass template-fill; on a more capable model with headroom, more latitude is fine. Cap
   fan-out at one agent per genuinely-independent sub-surface; merge their sub-specs
   under one parent problem statement and one scope line.
 

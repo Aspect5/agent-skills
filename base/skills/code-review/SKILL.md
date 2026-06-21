@@ -100,7 +100,7 @@ Assign severity per `references/severity-rubric.md`: 🔴 **blocker** / 🟠 **s
 Single-pass merged review is the default and needs no preflight. **Before any multi-agent fan-out** (per-dimension subagents and/or the independent verifier):
 
 - Honor the profile `fan_out` knob: `never` → never fan out (single pass only); `ask` → state "this is ~N subagents (one per matched dimension + 1 verifier) — proceed?" and wait; `allowed` → proceed but still announce the count.
-- Honor `budget` and `model`: on `gpt-5.4` or a tight budget, prefer the lean single-pass path and lower-freedom scripted checks; on `gpt-5.5` with headroom, prose latitude and fan-out are fine.
+- Honor `budget` and `model`: on a cheaper model or a tight budget, prefer the lean single-pass path and lower-freedom scripted checks; on a more capable model with headroom, prose latitude and fan-out are fine.
 - Fan out **only at standard/full tier** with multiple matched dimensions — never for a trivial diff.
 
 ### 9. Human-approval pause before any write

@@ -108,7 +108,7 @@ with **zero** configuration and *better* with a profile — never failing withou
    to reconstruct state across *many* branches/PRs/worktrees and wants parallel investigation,
    treat that as opt-in fan-out: do a **cost preflight** ("this is ~N subagents — proceed?")
    and honor the profile's `fan_out: allowed | ask | never`, `budget`, and `model`
-   (gpt-5.4 → fewer agents, lean on deterministic git/`gh` introspection; gpt-5.5 → more
+   (a cheaper model → fewer agents, lean on deterministic git/`gh` introspection; a more capable model → more
    latitude). Never fan out silently.
 
 8. **Self-check / quality gate (run before returning).**

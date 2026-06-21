@@ -140,8 +140,8 @@ Run this before any analysis. Never fail for lack of a profile — fall back to 
 
 - **Default is a single-pass, single-agent audit** — the script does the heavy
   deterministic work, so one pass is usually sufficient and cheapest. Honor the
-  profile `model` (`gpt-5.4` → lean harder on the script's numbers and lower
-  prose freedom; `gpt-5.5` → more architectural-judgment latitude) and `budget`.
+  profile `model` (a cheaper model → lean harder on the script's numbers and lower
+  prose freedom; a more capable model → more architectural-judgment latitude) and `budget`.
 - **Multi-agent fan-out is opt-in only.** Use parallel subagents only when the
   user explicitly asks for agents/delegation/parallel work, the codebase is large
   enough to warrant it, and the profile permits it (`fan_out: allowed`; if

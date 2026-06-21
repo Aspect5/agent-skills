@@ -1,18 +1,19 @@
 # agent-skills — instructions for agents
 
-This public repo is the **source of truth** for a portable set of **project-agnostic Codex skills** for large, quality-critical codebases. Agents pull this repo for context and **replicate the skills onto the local machine**, then tailor them per-project at runtime.
+This public repo is the **source of truth** for a portable set of **project-agnostic agent skills for Codex and Claude Code** for large, quality-critical codebases. The `SKILL.md` format is shared between the two harnesses, so the same `base/skills/*` run natively in both. Agents pull this repo for context and **replicate the skills onto the local machine**, then tailor them per-project at runtime.
 
 ## What's here
-- `base/skills/<skill>/` — the project-agnostic skills (`SKILL.md` + `references/` + `scripts/` + `agents/openai.yaml`). **The source of truth. Never edit these per-project.**
+- `base/skills/<skill>/` — the project-agnostic skills (`SKILL.md` + `references/` + `scripts/` + `agents/openai.yaml`). **The source of truth. Never edit these per-project.** (`agents/openai.yaml` is Codex interface metadata; Claude Code reads `SKILL.md` frontmatter directly and ignores it.)
 - `profiles-template/` — a generic profile template to copy into a project.
-- `install.sh` — bootstrap helper that replicates `base/skills/*` into `$CODEX_HOME/skills`.
+- `install.sh` — collision-safe bootstrap that replicates `base/skills/*` into the agent's skills dir.
 
 ## To replicate the skills onto THIS machine
 ```bash
-./install.sh            # symlink base/skills/* into $CODEX_HOME/skills (default ~/.codex/skills)
+./install.sh            # Codex:       symlink base/skills/* into $CODEX_HOME/skills  (default ~/.codex/skills)
+./install.sh --claude   # Claude Code: symlink base/skills/* into $CLAUDE_HOME/skills (default ~/.claude/skills)
 ./install.sh --copy     # standalone COPY instead — survives the repo moving/being deleted
 ```
-Existing real dirs of the same name are backed up to `~/.codex/skills/.superseded/` first. **Restart Codex** to pick up the skills. Do **not** touch `~/.codex/skills/.system` (preinstalled system skills). Security skills (`security-best-practices`, `security-threat-model`) come from upstream `openai/skills` — install those with `$skill-installer`, not from here.
+**Collision-safe:** a skill of the same name that isn't ours is reported and **left untouched** — never deleted (pass `--force` to back it up to `.superseded/` and override). **Restart the agent** to pick up the skills. Do **not** touch `~/.codex/skills/.system` (preinstalled system skills). Security skills (`security-best-practices`, `security-threat-model`) come from upstream `openai/skills` — install those with `$skill-installer`, not from here.
 
 ## To tailor a skill to a project (no fork)
 Each base skill is **pure process**; project-specific facts are **data it reads at runtime** (it discovers `AGENTS.md`/`CLAUDE.md`, lint/test/CI config, and an optional profile). To specialize a skill for a project:

@@ -78,9 +78,9 @@ defaults.
    `references/harness-wiring.md`.
 
 Honor the budget posture from the start: `fan_out: never` ⇒ stay single-pass;
-`fan_out: ask` ⇒ cost-preflight before any multi-agent step; `model: gpt-5.4` ⇒
+`fan_out: ask` ⇒ cost-preflight before any multi-agent step; a cheaper `model` ⇒
 lean on the inventory script's numbers and lower-freedom scripted scaffolding;
-`model: gpt-5.5` ⇒ more latitude in rubric/dataset authorship.
+a more capable `model` ⇒ more latitude in rubric/dataset authorship.
 
 ## Workflow
 
@@ -224,7 +224,7 @@ cost-incurring LLM/judge batch:
 - State the cost: "this is ~N subagents and/or ~M judge calls at `<model>` —
   proceed?" and **honor `fan_out`**: `never` → single-pass only; `ask` → wait for
   a yes; `allowed` → proceed and announce the count. Honor `budget` and `model`
-  (`gpt-5.4` → lean, scripted, minimal judge calls; `gpt-5.5` with headroom →
+  (a cheaper model → lean, scripted, minimal judge calls; a more capable model with headroom →
   fan-out and richer authorship are fine).
 - Fan out only when the repo is large enough to warrant it and the profile
   permits. Each subagent returns scaffolding/findings and **edits nothing**

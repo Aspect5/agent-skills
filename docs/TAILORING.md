@@ -17,7 +17,7 @@ The skill runs unmodified with no profile, and better with one. Your job is to s
 1. **Learn the project.** Read its `AGENTS.md`/`CLAUDE.md`, `CONTRIBUTING`, lint/test/CI config, directory shape, migration tool, security surface. Note what CI already enforces (the skill must not re-flag it).
 2. **Pick the skill's override hooks.** Each base skill exposes stable `base:<id>` ids — the authoritative list is in that skill's `references/checklist.md` (and `references/reviewer-dimensions.md` for `code-review`). Grep it:
    ```bash
-   grep -oE 'base:[a-z0-9-]+' ~/.codex/skills/<skill>/references/*.md | sort -u
+   grep -oE 'base:[a-z0-9-]+' ~/.codex/skills/<skill>/references/*.md | sort -u   # or ~/.claude/skills/<skill>/...
    ```
 3. **Author `<project>/.agents/profiles/<skill>.md`** — copy `profiles-template/code-review.md` (the canonical example) and adapt it. Set the frontmatter knobs, then add `ADD` / `OVERRIDE base:<id>` / `SUPPRESS base:<id>` blocks.
 4. **Set the budget/model knobs** (below) so the skill self-throttles.
@@ -34,7 +34,8 @@ commands: { lint: "...", test: "...", ci: "..." }   # omit → skill auto-detect
 severity_floor: should-fix          # blocker | should-fix | nit
 focus_paths: [ ... ]                 # weight findings here higher
 ignore_paths: [ ... ]                # never flag (e.g. generated code)
-model: gpt-5.5                       # or gpt-5.4
+model: <your harness model id>       # the tier is what matters: cheaper ⇒ lower-freedom, stronger ⇒ more latitude
+                                     #   Codex: gpt-5.4 / gpt-5.5 · Claude Code: claude-haiku-4-5 / claude-opus-4-8
 budget: { period: day, limit_usd: 100 }
 fan_out: ask                         # allowed | ask | never
 ---
@@ -50,11 +51,11 @@ fan_out: ask                         # allowed | ask | never
 
 | Knob | Effect |
 |---|---|
-| `model: gpt-5.4` | Skill prefers deterministic scripts + lower-freedom steps (weaker model). `gpt-5.5` → more prose latitude. |
+| `model` | Holds the harness's model id; the skill only reasons about the **tier**. A cheaper/weaker model (Codex `gpt-5.4`, Claude `claude-haiku-4-5`) ⇒ deterministic scripts + lower-freedom steps; a stronger model (Codex `gpt-5.5`, Claude `claude-opus-4-8`) ⇒ more prose latitude. |
 | `budget` | The skill states rough cost before expensive work and stays within the period limit. |
 | `fan_out: never` | No multi-agent fan-out — single-pass only (cheapest). `ask` → cost preflight + confirm. `allowed` → fan out freely. |
 
-Tight-budget project (e.g. monthly cap, weaker model) → `model: gpt-5.4`, `fan_out: never` (or `ask`), modest `budget`. Roomy project → `gpt-5.5`, `fan_out: allowed`.
+Tight-budget project (e.g. monthly cap, weaker model) → a cheaper `model`, `fan_out: never` (or `ask`), modest `budget`. Roomy project → a stronger `model`, `fan_out: allowed`.
 
 ## Override hooks by skill (where to find them)
 

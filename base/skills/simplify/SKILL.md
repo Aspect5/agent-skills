@@ -51,8 +51,8 @@ back to sane defaults otherwise.
    build), in precedence order: profile `commands` → introspect `package.json`,
    `pyproject.toml`, `Makefile`, `.github/workflows/*` → ask the user **once** if still
    ambiguous → otherwise note "no gate found" and rely on manual inspection.
-4. **Calibrate freedom to the model.** `gpt-5.4`: lower freedom — prefer scripts, explicit
-   checks, and conservative edits. `gpt-5.5`: more prose latitude for judgment calls. Either
+4. **Calibrate freedom to the model.** a cheaper model: lower freedom — prefer scripts, explicit
+   checks, and conservative edits. a more capable model: more prose latitude for judgment calls. Either
    way, the safe-deletion bar and behavior anchor are non-negotiable.
 
 ## Workflow

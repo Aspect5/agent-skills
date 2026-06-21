@@ -41,7 +41,7 @@ Run this before any analysis. Never fail for lack of a profile — fall back to 
 3. **Resolve commands and harness locations** in this precedence, first hit wins: profile values → introspect the repo (`package.json` / `pyproject.toml` / `Makefile` / `.github/workflows/`; `.claude/`, `.cursor/`, `.codex/`, `.mcp.json`/`mcp.json`, `.agents/` for harness config) → ask the user once if a critical location is genuinely ambiguous → ecosystem default. Use the inventory helper to do the discovery deterministically: `python3 "<path-to-skill>/scripts/harness_inventory.py" --json`. Never invent a harness location.
 4. **Fall back to defaults** when no profile and no override exist — the skill must run unmodified with zero config. Absence of a profile is normal, not an error.
 
-Honor the budget posture from the start: `fan_out: never` ⇒ stay single-pass; `fan_out: ask` ⇒ run the cost preflight before any fan-out; `model: gpt-5.4` ⇒ lean on the inventory script's numbers and prefer lower-freedom, scripted checks over open-ended prose; `model: gpt-5.5` ⇒ more architectural-judgment latitude.
+Honor the budget posture from the start: `fan_out: never` ⇒ stay single-pass; `fan_out: ask` ⇒ run the cost preflight before any fan-out; a cheaper `model` ⇒ lean on the inventory script's numbers and prefer lower-freedom, scripted checks over open-ended prose; a more capable `model` ⇒ more architectural-judgment latitude.
 
 ## Workflow
 
@@ -85,7 +85,7 @@ Compute the component-by-component harness score and write the full advisory to 
 Single-pass, single-agent is the **default** — the inventory script does the deterministic heavy lifting, so one careful pass covers most audits at the lowest cost. **Before any multi-agent fan-out:**
 
 - Honor the profile `fan_out` knob: `never` → never fan out (single pass only); `ask` → state the cost preflight ("this is ~N read-only subagents, one per harness component lens — proceed?") and wait for a yes; `allowed` → proceed but still announce the count.
-- Honor `budget` and `model`: on `gpt-5.4` or a tight budget, prefer the lean single-pass scripted path; on `gpt-5.5` with headroom, parallel component-lens subagents and more prose latitude are fine.
+- Honor `budget` and `model`: on a cheaper model or a tight budget, prefer the lean single-pass scripted path; on a more capable model with headroom, parallel component-lens subagents and more prose latitude are fine.
 - Fan out only when the harness is genuinely large (many nested rule files, a big MCP surface, multiple skills) and the profile permits it. Suggested independent read-only lenses: Rules & Context lens, Tools/MCP lens, Guardrails & Permissions lens, Observability lens. **Each subagent returns evidence only and edits nothing.**
 
 ### 7. Human-approval pause before any write

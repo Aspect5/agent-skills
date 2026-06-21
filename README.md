@@ -1,6 +1,6 @@
 # agent-skills
 
-Public, portable set of best-in-class **Codex skills** for large codebases where code quality is essential. One source of truth, installable on any machine, tailorable per-project by downstream agents **without forking the base**.
+Public, portable set of best-in-class **agent skills for Codex and Claude Code** (the `SKILL.md` format is shared, so one source of truth runs natively in both) for large codebases where code quality is essential. Installable on any machine, tailorable per-project by downstream agents **without forking the base**.
 
 ## Layout
 
@@ -9,7 +9,7 @@ base/skills/           # PROJECT-AGNOSTIC source of truth. Never forked.
 profiles-template/     # canonical profile example to copy + adapt per project
 evals/                 # machine gate: validate_skills.py + routing/ (run before a PR)
 templates/             # skill-skeleton/ — scaffold a new compliant skill
-install.sh             # idempotent bootstrap → $CODEX_HOME/skills (symlinks)
+install.sh             # idempotent, collision-safe bootstrap → ~/.codex/skills or (--claude) ~/.claude/skills
 skills-lock.json       # which base version each project consumes
 CONTRIBUTING.md        # how to add a skill, and the bar it must pass
 ```
@@ -20,12 +20,14 @@ Agents pull this repo for context and replicate the skills locally; a human can 
 
 ```bash
 git clone https://github.com/Aspect5/agent-skills.git ~/src/agent-skills   # public — no auth needed
-cd ~/src/agent-skills && ./install.sh          # symlink base skills into ~/.codex/skills
-#                        ./install.sh --copy    # OR standalone copies (survive the repo moving)
-# then RESTART Codex to pick them up
+cd ~/src/agent-skills
+./install.sh                 # Codex:       symlink base skills into ~/.codex/skills
+./install.sh --claude        # Claude Code: symlink base skills into ~/.claude/skills
+#            --copy           # OR standalone copies (survive the repo moving)
+# then RESTART the agent to pick them up
 ```
 
-`install.sh` replicates every `base/skills/*` into `$CODEX_HOME/skills` (default `~/.codex/skills`). Symlink mode (default) means one `git pull` updates every machine; `--copy` makes self-contained copies. Existing real dirs of the same name are backed up to `~/.codex/skills/.superseded/` first. See **`AGENTS.md`** for the agent-facing replication + tailoring contract.
+`install.sh` replicates every `base/skills/*` into the agent's skills dir (`~/.codex/skills`, or `~/.claude/skills` with `--claude`; override via `$CODEX_HOME` / `$CLAUDE_HOME`). Symlink mode (default) means one `git pull` updates every machine; `--copy` makes self-contained copies. It is **collision-safe**: a skill of the same name that isn't ours is reported and left untouched — pass `--force` to back it up to `.superseded/` and override. See **`AGENTS.md`** for the agent-facing replication + tailoring contract.
 
 Codex-native alternative (one-off, no auth — the repo is public): `$skill-installer install https://github.com/Aspect5/agent-skills/tree/main/base/skills/<skill>`.
 

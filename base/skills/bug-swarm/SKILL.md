@@ -52,7 +52,7 @@ Run this before anything else. Never fail for lack of a profile.
    run unmodified with zero config.
 
 Honor the budget posture from the start: `fan_out: never` ⇒ stay single-pass;
-`fan_out: ask` ⇒ run the cost preflight before Step 4; `model: gpt-5.4` ⇒ prefer
+`fan_out: ask` ⇒ run the cost preflight before Step 4; a cheaper `model` ⇒ prefer
 lower-freedom, script-anchored steps over open-ended prose.
 
 ## Workflow
