@@ -19,6 +19,10 @@ Only load this file when you need the full check list or are applying a profile.
 
 ## Branching & worktrees
 
+- **base:clean-tree-preflight** — Before cutting any branch or worktree, the working
+  tree must be clean (`git status --porcelain` empty), or the user must have approved
+  stashing it (`git stash push --include-untracked`, restored at the end). Dirty
+  uncommitted edits would ride into the repro branch and poison the RED-on-HEAD oracle.
 - **base:base-branch-resolved** — The working branch is cut from the *resolved* base
   branch (`origin/HEAD` → current branch), never an assumed `main`.
 - **base:worktree-isolation** — Every hypothesis runs in its own `git worktree`; the
@@ -71,8 +75,10 @@ Only load this file when you need the full check list or are applying a profile.
   `tail`/`head`).
 - **base:regression-test-real** — The shipped repro/sibling tests fail on the buggy
   code and pass on the fix (a true tripwire, not vacuous coverage).
-- **base:worktree-cleanup** — All losing worktrees are removed; the winner is kept
-  until merge.
+- **base:worktree-cleanup** — Worktrees are cleaned per outcome: when shipping, all
+  losers are removed and the winner kept until merge; when abstaining, **all**
+  worktrees are removed (there is no winner). No orphaned `.bug-swarm/` worktrees,
+  and the user's working tree is left untouched.
 
 ## Guardrails
 

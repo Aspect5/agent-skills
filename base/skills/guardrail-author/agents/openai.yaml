@@ -1,0 +1,6 @@
+interface:
+  display_name: "Guardrail Author"
+  short_description: "Build deterministic, tested, fail-closed harness guardrails"
+  default_prompt: "Use $guardrail-author to turn a danger surface (secrets, protected-branch push, destructive command) into a deterministic fail-closed hook wired to the repo's harness, with a test proving it fires and doesn't false-block."
+policy:
+  allow_implicit_invocation: true

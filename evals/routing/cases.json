@@ -1,0 +1,37 @@
+[
+  { "prompt": "clean up this AI-generated module without changing its behavior",
+    "expect": "simplify", "competitors": ["code-review", "churn-audit", "bug-swarm"] },
+
+  { "prompt": "is this PR safe to merge, find bugs in the diff before merge",
+    "expect": "code-review", "competitors": ["simplify", "bug-swarm"] },
+
+  { "prompt": "this bug has resisted three fixes and spans the UI and the service layer",
+    "expect": "bug-swarm", "competitors": ["code-review", "simplify"] },
+
+  { "prompt": "which files keep churning, where is the codebase fighting itself architecturally",
+    "expect": "churn-audit", "competitors": ["simplify", "code-review"] },
+
+  { "prompt": "should we use Postgres or DynamoDB here, compare the options and recommend",
+    "expect": "design-tradeoff", "competitors": ["spec-author"] },
+
+  { "prompt": "update the stale CLAUDE.md so its commands and architecture match the current code",
+    "expect": "docs-refresh", "competitors": ["harness-audit"] },
+
+  { "prompt": "summarize where we left off and hand off the session state to the next agent",
+    "expect": "handoff", "competitors": [] },
+
+  { "prompt": "add evals for our LLM summarizer so we know its output quality is good",
+    "expect": "eval-author", "competitors": ["spec-author", "code-review", "guardrail-author"] },
+
+  { "prompt": "audit our agent harness, the agent keeps ignoring the AGENTS.md rules and drifting",
+    "expect": "harness-audit", "competitors": ["docs-refresh", "guardrail-author"] },
+
+  { "prompt": "turn this vague ticket into a precise spec with testable acceptance criteria",
+    "expect": "spec-author", "competitors": ["design-tradeoff", "eval-author"] },
+
+  { "prompt": "add a pre-commit hook that blocks committed secrets and force-push to main",
+    "expect": "guardrail-author", "competitors": ["harness-audit"] },
+
+  { "prompt": "make sure the agent can never leak secrets or PII, enforce it deterministically",
+    "expect": "guardrail-author", "competitors": ["eval-author"] }
+]

@@ -51,8 +51,9 @@ profiles depend on them.
 
 ## Visualization
 
-- **base:per-option-diagram** — At least one per-option (or comparative) mermaid
-  diagram showing structural/data/control-flow difference.
+- **base:per-option-diagram** — For one-way / borderline doors, at least one
+  per-option (or comparative) mermaid diagram showing the structural/data/
+  control-flow difference. A clear two-way door may rely on the weighted table.
 - **base:weighted-table** — The weighted comparison table is rendered in the
   record.
 - **base:migration-diagram** — For a migration/rewrite decision, a phased

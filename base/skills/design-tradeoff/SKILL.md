@@ -138,6 +138,8 @@ Add to the record:
 
 - **One mermaid diagram per option** (or one comparative `graph LR`) showing
   data/control flow — make the structural difference visible, not just prose.
+  Required for one-way / borderline doors; for a clear two-way door the weighted
+  table alone suffices — don't over-produce (honor the Step-1 depth budget).
 - **One weighted comparison table** (the Step-3 matrix, rendered).
 - **For a migration/rewrite decision:** a phased rollout / strangler-fig diagram
   showing how you get from current state to the target incrementally.
@@ -206,7 +208,8 @@ Before presenting, verify every item — fix or call out any miss:
 - [ ] Tradeoff points and sensitivity thresholds are named (one-way doors).
 - [ ] The recommendation states what you give up, the flip conditions, **and** a
       named back-out path.
-- [ ] At least one per-option mermaid diagram and the weighted table are present.
+- [ ] The weighted table is present; a per-option mermaid diagram is included for
+      one-way / borderline doors (a clear two-way door may use a small table alone).
 - [ ] The ADR was written to the **discovered** format/location (or MADR-fallback
       is explicitly declared).
 - [ ] Any fan-out was cost-preflighted and honored `fan_out`; total agents ≤ 6.

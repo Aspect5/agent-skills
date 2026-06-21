@@ -1,0 +1,6 @@
+interface:
+  display_name: "Spec Author"
+  short_description: "Turn a fuzzy request into a precise, testable spec"
+  default_prompt: "Use $spec-author to turn this request into a precise, testable spec — problem statement, non-goals, acceptance criteria as checkable assertions, edge cases, interface contract, and a criterion→eval handoff."
+policy:
+  allow_implicit_invocation: true

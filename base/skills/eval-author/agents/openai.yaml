@@ -1,0 +1,6 @@
+interface:
+  display_name: "Eval Author"
+  short_description: "Stand up tests + evals; report verification coverage"
+  default_prompt: "Use $eval-author to inventory what behavior and agent surfaces lack verification, then scaffold deterministic tests for deterministic logic and labelled-dataset + rubric + LM-judge evals for non-deterministic output and agent trajectories, and report honest coverage with the command to run it."
+policy:
+  allow_implicit_invocation: true

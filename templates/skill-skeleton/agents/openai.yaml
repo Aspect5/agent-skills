@@ -1,0 +1,6 @@
+interface:
+  display_name: "<Skill Title>"
+  short_description: "<one-line description for the picker>"
+  default_prompt: "Use $<skill-name> to <the one-sentence job this skill does>."
+policy:
+  allow_implicit_invocation: true

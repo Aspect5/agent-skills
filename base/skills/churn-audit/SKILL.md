@@ -9,8 +9,8 @@ description: >-
   priorities, or "where is the codebase fighting itself". Advisory by default —
   it diagnoses and recommends, it does not refactor.
   Do not trigger for: reviewing a specific diff/PR before merge (use code-review),
-  general dead-code/de-slop cleanup, implementing an already-decided refactor,
-  bug reproduction, or non-git-history questions.
+  general dead-code/de-slop cleanup (use simplify), implementing an
+  already-decided refactor, bug reproduction, or non-git-history questions.
 ---
 
 # Churn Audit

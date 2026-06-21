@@ -19,7 +19,7 @@ The skill runs unmodified with no profile, and better with one. Your job is to s
    ```bash
    grep -oE 'base:[a-z0-9-]+' ~/.codex/skills/<skill>/references/*.md | sort -u
    ```
-3. **Author `<project>/.agents/profiles/<skill>.md`** — copy `profiles-template/<skill>.md`. Set the frontmatter knobs, then add `ADD` / `OVERRIDE base:<id>` / `SUPPRESS base:<id>` blocks.
+3. **Author `<project>/.agents/profiles/<skill>.md`** — copy `profiles-template/code-review.md` (the canonical example) and adapt it. Set the frontmatter knobs, then add `ADD` / `OVERRIDE base:<id>` / `SUPPRESS base:<id>` blocks.
 4. **Set the budget/model knobs** (below) so the skill self-throttles.
 5. **Keep it confidential.** Proprietary/stack detail lives only here, in the project repo — never in `agent-skills`.
 
@@ -41,9 +41,9 @@ fan_out: ask                         # allowed | ask | never
 ## ADD
 - <new project-specific rule appended to the checklist>
 ## OVERRIDE
-- base:line-length → <rebind a default, e.g. 100 cols not 80>
+- base:migration-reversible → <rebind a default, e.g. migrations use an in-house tool; require its down-stanza, not a SQL rollback>
 ## SUPPRESS
-- base:no-todo-comments   # <reason this project opts out>
+- base:security-secrets   # <reason this project opts out, e.g. a dedicated gitleaks gate already covers this>
 ```
 
 ## Budget / model knobs

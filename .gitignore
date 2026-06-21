@@ -1,3 +1,15 @@
 .DS_Store
 __pycache__/
 *.pyc
+
+# Artifacts the skills themselves generate when dogfooded inside this repo.
+# .agents/profiles/ is the confidential per-project category that must NEVER
+# be committed here (see README "Confidentiality").
+.agents/profiles/
+.bug-swarm/
+.superseded/
+
+# Editor / OS noise
+*.swp
+.idea/
+.vscode/

@@ -78,6 +78,12 @@ lower-freedom, script-anchored steps over open-ended prose.
 - A test that is **green on HEAD is rejected**: it does not capture the bug. Iterate
   until red-for-the-right-reason. This gate is non-negotiable — without a failing
   oracle the swarm drifts.
+- **Clean-tree preflight** (`base:clean-tree-preflight`) — before cutting any branch
+  or worktree, run `git status --porcelain`. If the tree is dirty, **stop and ask** to
+  commit or stash first: the trigger ("a bug that resisted ≥2 attempts") is exactly
+  when experimental uncommitted edits are likely, and they would ride into the repro
+  branch and poison the RED-on-HEAD oracle. Proceed only once the tree is clean — or
+  the user approves `git stash push --include-untracked` (restore it at the very end).
 - Create the working branch off the base branch (resolved from git; never assume
   `main`) and commit the repro:
 
@@ -181,7 +187,9 @@ move (different hypothesis set, deeper instrumentation), and mark **needs-human*
   `fix(<scope>): <symptom>`.
 - Abstain path: open a **draft diagnosis-only PR** carrying the repro test + the
   hypothesis writeup, so the bug never becomes invisible again.
-- Clean up the losing worktrees (`git worktree remove`); keep the winner until merge.
+- Clean up worktrees per outcome (`git worktree remove`): on the **ship** path remove
+  all losers and keep the winner until merge; on the **abstain** path remove **all**
+  worktrees (there is no winner). Never leave orphaned `.bug-swarm/` worktrees behind.
 
 ### 8. Self-check / quality gate (final word)
 
@@ -196,8 +204,10 @@ Before declaring done, verify every box — report the literal results, do not a
       contract without explicit escalation (guardrail below).
 - [ ] The project's own quality gate ran and **passed** — paste its literal pass line
       (capture its own exit code; never pipe to `tail`/`head`, which masks it).
-- [ ] All worktrees except the winner are removed; the user's working tree is
-      untouched.
+- [ ] The working tree was clean (or stashed with approval, then restored) before any
+      branch/worktree was created.
+- [ ] Worktrees cleaned per outcome — all but the winner removed when shipping, **all**
+      removed when abstaining; the user's working tree is untouched.
 - [ ] Full diagnosis is in `bug-swarm-<slug>.md`; only a summary went inline.
 
 If any box fails, fix it or fall to the abstain path. Do not ship on a partial gate.

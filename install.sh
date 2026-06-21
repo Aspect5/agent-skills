@@ -25,6 +25,13 @@ for d in "$SKILLS_REPO"/base/skills/*/; do
     count=$((count+1)); continue
   fi
 
+  # Copy mode: skip if an identical copy is already in place (keeps re-runs
+  # idempotent instead of re-archiving every skill into .superseded/).
+  if [ "$MODE" = "copy" ] && [ -d "$target" ] && [ ! -L "$target" ] \
+     && diff -rq "${d%/}" "$target" >/dev/null 2>&1; then
+    count=$((count+1)); continue
+  fi
+
   # Anything in the way gets backed up (real dir) or removed (stale symlink).
   if [ -e "$target" ] || [ -L "$target" ]; then
     if [ -L "$target" ]; then

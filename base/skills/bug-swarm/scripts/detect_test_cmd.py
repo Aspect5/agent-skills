@@ -5,12 +5,17 @@ Precedence (first hit wins):
   1. --test-cmd flag (caller override)
   2. $BUG_SWARM_TEST_CMD environment variable
   3. A test step parsed out of CI config (.github/workflows/*.yml, .gitlab-ci.yml,
-     Makefile `test:` target, package.json "test" script, pyproject [tool] hints)
+     Makefile `test:` target, package.json "test" script) — comments are stripped
+     first so a command is never lifted out of a `# ...` note.
   4. An ecosystem default inferred from manifest files present at the repo root
-     (pytest / vitest|jest / go test / cargo test / mvn|gradle test / phpunit ...)
+     (pytest / vitest|jest / go test / cargo test / mvn|gradle test / phpunit ...).
+     A bare pyproject.toml is NOT treated as a pytest signal (it is commonly only
+     packaging/bindings, e.g. maturin) — python defaults require a real pytest
+     signal, and Cargo.toml / go.mod outrank an ambiguous pyproject.
 
 The script NEVER guesses silently: it reports WHICH rule fired in the `source`
-field so the caller can decide whether to trust it or ask the user. It self-roots
+field, the detected `ecosystem`, and — when several stacks coexist — names them in
+`note` so the caller can decide whether to trust it or ask the user. It self-roots
 via `git rev-parse --show-toplevel` and supports --json. Exits non-zero only on a
 hard failure (not a git repo, or no command resolvable AND --require set).
 
@@ -70,6 +75,29 @@ def read_text(path: Path) -> str:
         return ""
 
 
+# --- comment stripping (shallow, covers the common CI/Make/shell cases) ------
+
+
+def _strip_inline_comment(line: str) -> str:
+    """Drop a trailing `# ...` comment when the `#` is at line start or preceded
+    by whitespace and not inside quotes. Shallow, but keeps us from lifting a
+    command out of a comment line (the #1 false extraction)."""
+    in_single = in_double = False
+    for i, ch in enumerate(line):
+        if ch == "'" and not in_double:
+            in_single = not in_single
+        elif ch == '"' and not in_single:
+            in_double = not in_double
+        elif ch == "#" and not in_single and not in_double:
+            if i == 0 or line[i - 1].isspace():
+                return line[:i]
+    return line
+
+
+def _strip_comments(text: str) -> str:
+    return "\n".join(_strip_inline_comment(ln) for ln in text.splitlines())
+
+
 # --- CI / config extraction --------------------------------------------------
 
 _TEST_LINE = re.compile(
@@ -90,12 +118,66 @@ _TEST_LINE = re.compile(
 
 
 def _clean(cmd: str) -> str:
-    # Strip YAML list markers, leading shell tokens, trailing whitespace.
+    # Strip YAML list markers, leading shell tokens, surrounding quotes/backticks.
     cmd = cmd.strip()
     cmd = re.sub(r"^-\s+", "", cmd)
     cmd = re.sub(r"^(run:|sh\s+-c\s+|bash\s+-c\s+)", "", cmd).strip()
-    cmd = cmd.strip("'\"").strip()
+    cmd = cmd.strip("`'\"").strip()
     return cmd
+
+
+_CMD_KEY = re.compile(r"^(\s*)(?:-\s+)?(run|script|before_script|after_script):\s*(.*)$")
+
+
+def _yaml_command_text(text: str) -> str:
+    """Extract ONLY the shell commands from a CI YAML — the values of `run:`
+    (GitHub Actions) and `script:`/`before_script:`/`after_script:` (GitLab),
+    inline or block. This is what keeps us from matching a test word inside a
+    `name:` label, a job id, or a comment (the #1 false extraction)."""
+    lines = text.splitlines()
+    out: list[str] = []
+    i, n = 0, len(lines)
+    while i < n:
+        m = _CMD_KEY.match(lines[i])
+        if not m:
+            i += 1
+            continue
+        indent = len(m.group(1))
+        rest = m.group(3).strip()
+        i += 1
+        if rest and rest[0] not in "|>[":
+            out.append(rest)  # inline scalar: `run: cargo test -p foo`
+            continue
+        if rest.startswith("["):
+            out.append(rest.strip("[]"))  # inline flow list: `script: [pytest]`
+            continue
+        # Block: gather lines indented deeper than the key (block scalar OR list).
+        block_indent: int | None = None
+        while i < n:
+            ln = lines[i]
+            if ln.strip() == "":
+                i += 1
+                continue
+            cur = len(ln) - len(ln.lstrip())
+            if cur <= indent:
+                break
+            if block_indent is None:
+                block_indent = cur
+            body = ln[block_indent:] if cur >= block_indent else ln.lstrip()
+            body = re.sub(r"^-\s+", "", body)  # strip a YAML list marker
+            out.append(body)
+            i += 1
+    return "\n".join(out)
+
+
+def _first_test_cmd(command_text: str) -> str | None:
+    """First whole command LINE that invokes a test runner. Returns the full
+    line (preserving wrappers like `uv run ... pytest`), comments stripped."""
+    for raw in command_text.splitlines():
+        line = _strip_inline_comment(raw).strip()
+        if line and _TEST_LINE.search(line):
+            return _clean(line)
+    return None
 
 
 def from_github_workflows(root: Path, candidates: list[str]) -> tuple[str, str] | None:
@@ -103,12 +185,10 @@ def from_github_workflows(root: Path, candidates: list[str]) -> tuple[str, str] 
     if not wf_dir.is_dir():
         return None
     for wf in sorted(wf_dir.glob("*.y*ml")):
-        text = read_text(wf)
-        for m in _TEST_LINE.finditer(text):
-            cmd = _clean(m.group(0))
-            if cmd:
-                candidates.append(cmd)
-                return cmd, f"ci:.github/workflows/{wf.name}"
+        cmd = _first_test_cmd(_yaml_command_text(read_text(wf)))
+        if cmd:
+            candidates.append(cmd)
+            return cmd, f"ci:.github/workflows/{wf.name}"
     return None
 
 
@@ -116,11 +196,10 @@ def from_gitlab_ci(root: Path, candidates: list[str]) -> tuple[str, str] | None:
     gl = root / ".gitlab-ci.yml"
     if not gl.is_file():
         return None
-    for m in _TEST_LINE.finditer(read_text(gl)):
-        cmd = _clean(m.group(0))
-        if cmd:
-            candidates.append(cmd)
-            return cmd, "ci:.gitlab-ci.yml"
+    cmd = _first_test_cmd(_yaml_command_text(read_text(gl)))
+    if cmd:
+        candidates.append(cmd)
+        return cmd, "ci:.gitlab-ci.yml"
     return None
 
 
@@ -130,18 +209,17 @@ def from_makefile(root: Path, candidates: list[str]) -> tuple[str, str] | None:
         if not mk.is_file():
             continue
         text = read_text(mk)
-        # Find a `test:` (or `check:`) target and pull its first recipe line.
+        # Find a `test:` (or `check:`) target and confirm it has a real recipe
+        # (a non-comment recipe line), then prefer the portable `make test`.
         target = re.search(
             r"^(?:test|check)\s*:.*$\n((?:\t.*\n?)+)", text, re.MULTILINE
         )
         if target:
-            recipe = target.group(1).splitlines()
-            for line in recipe:
-                cmd = _clean(line.replace("\t", "", 1))
-                cmd = re.sub(r"^@", "", cmd).strip()
-                if cmd:
+            for line in target.group(1).splitlines():
+                recipe = _strip_inline_comment(line.replace("\t", "", 1))
+                recipe = re.sub(r"^@", "", recipe).strip()
+                if recipe:
                     candidates.append("make test")
-                    # Prefer the portable `make test` over the raw recipe.
                     return "make test", f"ci:{name}"
     return None
 
@@ -179,75 +257,86 @@ def _node_runner(root: Path) -> str:
     return "npm"
 
 
-def ecosystem_default(root: Path, candidates: list[str]) -> tuple[str, str] | None:
-    checks: list[tuple[bool, str, str]] = [
-        (
-            any((root / f).is_file() for f in ("pyproject.toml", "setup.cfg", "tox.ini"))
-            or (root / "pytest.ini").is_file(),
-            "pytest",
-            "python",
-        ),
-        ((root / "package.json").is_file(), f"{_node_runner(root)} test", "node"),
-        ((root / "go.mod").is_file(), "go test ./...", "go"),
-        ((root / "Cargo.toml").is_file(), "cargo test", "rust"),
-        ((root / "pom.xml").is_file(), "mvn test", "java-maven"),
-        (
-            any((root / f).is_file() for f in ("build.gradle", "build.gradle.kts")),
-            "./gradlew test" if (root / "gradlew").is_file() else "gradle test",
-            "java-gradle",
-        ),
-        ((root / "Gemfile").is_file(), "bundle exec rspec", "ruby"),
-        ((root / "composer.json").is_file(), "composer test", "php"),
-    ]
-    for present, cmd, eco in checks:
-        if present:
-            candidates.append(cmd)
-            return cmd, eco
-    return None
+def _has_python_test_signal(root: Path) -> bool:
+    """A *real* pytest signal — not a bare pyproject.toml, which is commonly just
+    packaging or native bindings (maturin/setuptools) in a non-Python repo."""
+    if (root / "pytest.ini").is_file() or (root / "tox.ini").is_file():
+        return True
+    setup_cfg = root / "setup.cfg"
+    if setup_cfg.is_file() and "[tool:pytest]" in read_text(setup_cfg):
+        return True
+    pp = root / "pyproject.toml"
+    if pp.is_file() and re.search(r"(?m)^\[tool\.pytest", read_text(pp)):
+        return True
+    for d in ("tests", "test"):
+        td = root / d
+        if td.is_dir() and any(td.rglob("*.py")):
+            return True
+    return False
 
 
-def resolve(root: Path, override: str | None, require: bool) -> Resolution:
+def detect_ecosystems(root: Path) -> list[tuple[str, str]]:
+    """All detected stacks as (name, default_cmd), ordered by selection priority.
+    Python only qualifies with a real pytest signal, so a Rust/Go repo that ships
+    a pyproject.toml for bindings is not misread as Python."""
+    found: list[tuple[str, str]] = []
+    if _has_python_test_signal(root):
+        found.append(("python", "pytest"))
+    if (root / "go.mod").is_file():
+        found.append(("go", "go test ./..."))
+    if (root / "Cargo.toml").is_file():
+        found.append(("rust", "cargo test"))
+    if (root / "pom.xml").is_file():
+        found.append(("java-maven", "mvn test"))
+    if any((root / f).is_file() for f in ("build.gradle", "build.gradle.kts")):
+        cmd = "./gradlew test" if (root / "gradlew").is_file() else "gradle test"
+        found.append(("java-gradle", cmd))
+    if (root / "Gemfile").is_file():
+        found.append(("ruby", "bundle exec rspec"))
+    if (root / "composer.json").is_file():
+        found.append(("php", "composer test"))
+    if (root / "package.json").is_file():
+        found.append(("node", f"{_node_runner(root)} test"))
+    return found
+
+
+def resolve(root: Path, override: str | None) -> Resolution:
     candidates: list[str] = []
 
-    # Detect ecosystem regardless of where the command comes from (for reporting).
-    eco_hit = ecosystem_default(root, [])
-    ecosystem = None
-    if eco_hit:
-        # eco_hit is (cmd, name); map back to name
-        _cmd, name = eco_hit
-        ecosystem = name
+    # Detect every ecosystem present (for reporting + the default fallback).
+    ecosystems = detect_ecosystems(root)
+    ecosystem = ecosystems[0][0] if ecosystems else None
+    multi_note = None
+    if len(ecosystems) > 1:
+        multi_note = "Multiple stacks detected: " + ", ".join(n for n, _ in ecosystems)
 
     if override:
         candidates.append(override)
-        return Resolution(override, "flag", ecosystem, str(root), candidates)
+        return Resolution(override, "flag", ecosystem, str(root), candidates, note=multi_note)
 
     env = os.environ.get("BUG_SWARM_TEST_CMD")
     if env and env.strip():
         candidates.append(env.strip())
-        return Resolution(env.strip(), "env", ecosystem, str(root), candidates)
+        return Resolution(env.strip(), "env", ecosystem, str(root), candidates, note=multi_note)
 
     for extractor in (
         from_github_workflows,
         from_gitlab_ci,
-        from_package_json,
         from_makefile,
+        from_package_json,
     ):
         hit = extractor(root, candidates)
         if hit:
             cmd, source = hit
-            return Resolution(cmd, source, ecosystem, str(root), candidates)
+            return Resolution(cmd, source, ecosystem, str(root), candidates, note=multi_note)
 
-    eco = ecosystem_default(root, candidates)
-    if eco:
-        cmd, name = eco
-        return Resolution(
-            cmd,
-            f"ecosystem:{name}",
-            name,
-            str(root),
-            candidates,
-            note="Ecosystem default — confirm it targets the right suite before trusting.",
-        )
+    if ecosystems:
+        name, cmd = ecosystems[0]
+        candidates.append(cmd)
+        note = "Ecosystem default — confirm it targets the right suite before trusting."
+        if multi_note:
+            note = f"{note} {multi_note}"
+        return Resolution(cmd, f"ecosystem:{name}", name, str(root), candidates, note=note)
 
     return Resolution(
         None,
@@ -281,7 +370,7 @@ def main() -> None:
     if root is None:
         fail("not a git repository (or git not installed) — bug-swarm needs git", as_json=args.json)
 
-    res = resolve(root, args.test_cmd, args.require)
+    res = resolve(root, args.test_cmd)
 
     if res.test_cmd is None and args.require:
         fail(res.note or "no test command resolvable", as_json=args.json)

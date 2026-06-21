@@ -1,0 +1,6 @@
+interface:
+  display_name: "Harness Audit"
+  short_description: "Evidence-backed audit of a repo's agent harness (Agent = Model + Harness)"
+  default_prompt: "Use $harness-audit to inspect this repo's agent harness — rule files (AGENTS.md/CLAUDE.md), tools/MCP surface, guardrails/hooks, permissions/sandbox, the static-vs-dynamic context split, and observability — and produce a prioritized, evidence-backed advisory of the misconfigurations causing agent failures. Advisory only; it diagnoses and recommends, it does not rewrite the harness."
+policy:
+  allow_implicit_invocation: true

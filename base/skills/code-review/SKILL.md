@@ -85,7 +85,7 @@ Before a candidate becomes a reported finding, it must survive ALL of these (the
 2. **Already-handled** — is this guarded upstream/downstream, or by a validator/type the diff doesn't show? If yes, drop it.
 3. **Convention / CI-skip** — does the ProjectProfile say CI already enforces this, or the team accepts it? If yes, drop it (never re-flag lint/format/types).
 4. **What-not-to-flag** — no theoretical or defense-in-depth nags (e.g. "could be exploited if an attacker controlled X" where X is server-constant), no speculative refactors outside the diff, no style preference dressed as a bug.
-5. **Re-review convergence** — on a re-run of an already-reviewed PR, suppress brand-new nits; only surface regressions and previously-missed blockers.
+5. **Re-review convergence** — on a re-run of an already-reviewed PR, suppress brand-new nits; only surface regressions and previously-missed blockers/should-fixes.
 
 At **full** tier (or when fan-out is enabled), an independent verifier pass tries to **refute** each blocker and should-fix; a finding no one can refute survives, the rest are downgraded or dropped.
 

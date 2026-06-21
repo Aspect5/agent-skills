@@ -29,7 +29,7 @@ fan_out: ask                     # allowed | ask | never  (gate on multi-agent s
 - <project-specific rules appended to the base checklist, e.g. "every new DB query must be tenant-scoped">
 
 ## OVERRIDE
-- base:line-length → <e.g. 100 cols, not 80; do not flag 80–100>
+- base:migration-reversible → <e.g. migrations use an in-house tool; require its down-stanza, not a SQL rollback>
 
 ## SUPPRESS
-- base:no-todo-comments   # <reason this project opts out, e.g. TODOs tracked in issues>
+- base:security-secrets   # <reason this project opts out, e.g. a dedicated gitleaks gate already covers it>
