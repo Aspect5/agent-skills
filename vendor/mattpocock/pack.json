@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "id": "mattpocock",
+  "display_name": "Matt Pocock Skills",
+  "source": {
+    "repo": "https://github.com/mattpocock/skills.git",
+    "commit": "16a2a5cd00b4416f673f4ff38c7971a04dd708e7",
+    "license_path": "LICENSE"
+  },
+  "exports": [
+    {
+      "source": "skills/engineering/codebase-design",
+      "target": "mp-codebase-design"
+    },
+    {
+      "source": "skills/engineering/diagnosing-bugs",
+      "target": "mp-diagnosing-bugs"
+    },
+    {
+      "source": "skills/engineering/domain-modeling",
+      "target": "mp-domain-modeling"
+    },
+    {
+      "source": "skills/productivity/grilling",
+      "target": "mp-grilling"
+    },
+    {
+      "source": "skills/engineering/prototype",
+      "target": "mp-prototype"
+    },
+    {
+      "source": "skills/engineering/research",
+      "target": "mp-research"
+    },
+    {
+      "source": "skills/engineering/tdd",
+      "target": "mp-tdd"
+    }
+  ]
+}

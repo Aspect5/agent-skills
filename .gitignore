@@ -8,6 +8,7 @@ __pycache__/
 .agents/profiles/
 .bug-swarm/
 .superseded/
+.generated/
 
 # Editor / OS noise
 *.swp
