@@ -6,7 +6,9 @@ Public, portable set of best-in-class **agent skills for Codex and Claude Code**
 
 ```
 base/skills/           # PROJECT-AGNOSTIC source of truth. Never forked.
+vendor/<pack>/         # pinned external skill packs + checked-in upstream snapshot
 profiles-template/     # canonical profile example to copy + adapt per project
+scripts/external_skills.py  # sync / validate / export approved external packs
 evals/                 # machine gate: validate_skills.py + routing/ (run before a PR)
 templates/             # skill-skeleton/ — scaffold a new compliant skill
 install.sh             # idempotent, collision-safe bootstrap → ~/.codex/skills or (--claude) ~/.claude/skills
@@ -24,10 +26,11 @@ cd ~/src/agent-skills
 ./install.sh                 # Codex:       symlink base skills into ~/.codex/skills
 ./install.sh --claude        # Claude Code: symlink base skills into ~/.claude/skills
 #            --copy           # OR standalone copies (survive the repo moving)
+#            --no-external    # base skills only — skip approved external packs
 # then RESTART the agent to pick them up
 ```
 
-`install.sh` replicates every `base/skills/*` into the agent's skills dir (`~/.codex/skills`, or `~/.claude/skills` with `--claude`; override via `$CODEX_HOME` / `$CLAUDE_HOME`). Symlink mode (default) means one `git pull` updates every machine; `--copy` makes self-contained copies. It is **collision-safe**: a skill of the same name that isn't ours is reported and left untouched — pass `--force` to back it up to `.superseded/` and override. See **`AGENTS.md`** for the agent-facing replication + tailoring contract.
+`install.sh` replicates every `base/skills/*` into the agent's skills dir (`~/.codex/skills`, or `~/.claude/skills` with `--claude`; override via `$CODEX_HOME` / `$CLAUDE_HOME`). It also validates and stages approved external packs into `.generated/external-skills/` and installs them alongside the base into the same target unless `--no-external` is set. Symlink mode (default) means one `git pull` updates every machine; `--copy` makes self-contained copies. It is **collision-safe**: a skill of the same name that isn't ours is reported and left untouched — pass `--force` to back it up to `.superseded/` and override. See **`AGENTS.md`** for the agent-facing replication + tailoring contract.
 
 Codex-native alternative (one-off, no auth — the repo is public): `$skill-installer install https://github.com/Aspect5/agent-skills/tree/main/base/skills/<skill>`.
 
@@ -65,6 +68,34 @@ These carry best-practice into whatever repo they touch — the substrate the mo
 | `guardrail-author` | Generate deterministic fail-closed guardrails/hooks (secrets, force-push, destructive ops) wired into the harness, each with a fires / doesn't-false-block test |
 
 Security skills (`security-best-practices`, `security-threat-model`) are kept from upstream `openai/skills` — install those via `$skill-installer`, not this repo.
+
+## Approved external packs
+
+Third-party packs live under `vendor/<pack>/` with:
+
+- `pack.json` — upstream repo + pinned commit + approved export list
+- `upstream/` — checked-in snapshot of only the approved source directories
+- `README.md` / `LICENSE.upstream` — provenance and license information
+
+The adapter script handles the rest:
+
+```bash
+python3 scripts/external_skills.py check
+python3 scripts/external_skills.py export
+python3 scripts/external_skills.py sync --pack mattpocock --source-root /path/to/cloned/upstream
+```
+
+Exported third-party skills are namespaced so they never collide with `base/skills/`. The current Matt Pocock pack exports:
+
+- `mp-codebase-design`
+- `mp-diagnosing-bugs`
+- `mp-domain-modeling`
+- `mp-grilling`
+- `mp-prototype`
+- `mp-research`
+- `mp-tdd`
+
+See [docs/EXTERNAL_SKILLS.md](docs/EXTERNAL_SKILLS.md) for the policy and update workflow.
 
 ## Conventions every skill follows
 

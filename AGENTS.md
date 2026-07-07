@@ -4,16 +4,19 @@ This public repo is the **source of truth** for a portable set of **project-agno
 
 ## What's here
 - `base/skills/<skill>/` — the project-agnostic skills (`SKILL.md` + `references/` + `scripts/` + `agents/openai.yaml`). **The source of truth. Never edit these per-project.** (`agents/openai.yaml` is Codex interface metadata; Claude Code reads `SKILL.md` frontmatter directly and ignores it.)
+- `vendor/<pack>/` — pinned third-party skill packs plus a checked-in upstream snapshot under `upstream/`. **Never edit `upstream/` by hand; sync it through the adapter script.**
+- `scripts/external_skills.py` — sync / validate / export approved third-party skills.
 - `profiles-template/` — a generic profile template to copy into a project.
-- `install.sh` — collision-safe bootstrap that replicates `base/skills/*` into the agent's skills dir.
+- `install.sh` — collision-safe bootstrap that replicates `base/skills/*` (and approved external packs) into the agent's skills dir.
 
 ## To replicate the skills onto THIS machine
 ```bash
-./install.sh            # Codex:       symlink base/skills/* into $CODEX_HOME/skills  (default ~/.codex/skills)
-./install.sh --claude   # Claude Code: symlink base/skills/* into $CLAUDE_HOME/skills (default ~/.claude/skills)
-./install.sh --copy     # standalone COPY instead — survives the repo moving/being deleted
+./install.sh                # Codex:       symlink base/skills/* into $CODEX_HOME/skills  (default ~/.codex/skills)
+./install.sh --claude       # Claude Code: symlink base/skills/* into $CLAUDE_HOME/skills (default ~/.claude/skills)
+./install.sh --no-external  # base skills only — skip approved external packs
+./install.sh --copy         # standalone COPY instead — survives the repo moving/being deleted
 ```
-**Collision-safe:** a skill of the same name that isn't ours is reported and **left untouched** — never deleted (pass `--force` to back it up to `.superseded/` and override). **Restart the agent** to pick up the skills. Do **not** touch `~/.codex/skills/.system` (preinstalled system skills). Security skills (`security-best-practices`, `security-threat-model`) come from upstream `openai/skills` — install those with `$skill-installer`, not from here.
+**Collision-safe:** a skill of the same name that isn't ours is reported and **left untouched** — never deleted (pass `--force` to back it up to `.superseded/` and override). Approved external packs are staged into `.generated/external-skills/` and installed alongside the base unless `--no-external` is set. **Restart the agent** to pick up the skills. Do **not** touch `~/.codex/skills/.system` (preinstalled system skills). Security skills (`security-best-practices`, `security-threat-model`) come from upstream `openai/skills` — install those with `$skill-installer`, not from here.
 
 ## To tailor a skill to a project (no fork)
 Each base skill is **pure process**; project-specific facts are **data it reads at runtime** (it discovers `AGENTS.md`/`CLAUDE.md`, lint/test/CI config, and an optional profile). To specialize a skill for a project:
@@ -32,3 +35,6 @@ python3 evals/validate_skills.py    # structural contract
 python3 evals/routing/check.py      # trigger-collision regression — add a case for a new skill
 ```
 Scaffold a new skill from `templates/skill-skeleton/`.
+
+## If you edit an external pack
+Do not rewrite imported skills into `base/skills/`. Update the pack manifest in `vendor/<pack>/pack.json`, sync the checked-in snapshot with `python3 scripts/external_skills.py sync --pack <pack> --source-root <cloned-upstream>`, then run `python3 scripts/external_skills.py check`. Exported names must not collide with `base/skills/`, and Codex-incompatible top-level frontmatter must be removed or explicitly filtered at the adapter seam.
