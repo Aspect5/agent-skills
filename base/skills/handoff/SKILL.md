@@ -1,14 +1,6 @@
 ---
 name: handoff
-description: >
-  Produces a precise, verifiable session handoff so the next session or agent resumes with
-  zero re-derivation: current state (branch, deploy, dirty files), what was completed (with
-  commit/PR/file evidence), what remains (ordered), open risks/blockers, and the exact next
-  command(s) to run. Use when asked for a handoff, "what's the state", a next-steps or
-  resume prompt, to wrap up or pause a session, to summarize where things stand for another
-  agent, or as a closing step another skill invokes. Do not trigger for: in-progress
-  implementation or debugging, code review, writing feature code or docs, or a general
-  status question that does not ask to hand off / resume work.
+description: "Write a precise, verifiable session handoff: current state (branch, deploy, dirty files), completed work with evidence, ordered remaining work, risks, exact next commands. Use when asked for a handoff, the state, a resume or next-steps prompt, to wrap up or pause, or to hand off to another agent. Do not trigger for: in-progress implementation, code review (use code-review), or a status question that is not a handoff."
 ---
 
 # Handoff

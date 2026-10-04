@@ -1,22 +1,6 @@
 ---
 name: harness-audit
-description: >-
-  Produces an evidence-backed audit of a repo's agent HARNESS — the scaffolding
-  around the model: rule files (AGENTS.md / CLAUDE.md), the tools/MCP surface,
-  guardrails/hooks, permissions/sandbox posture, the static-vs-dynamic context
-  split, and observability — scored against "Agent = Model + Harness", with
-  prioritized fixes for the missing tools, vague or contradictory rules, absent
-  deterministic guardrails, and context rot that cause agent failures. Advisory
-  by default — it diagnoses and recommends; it does not rewrite the harness.
-  Use when asked to audit or improve an agent / Claude Code / Codex setup, assess
-  AGENTS.md/CLAUDE.md quality, diagnose why an agent keeps failing, drifting, or
-  ignoring its rules, review the harness or agent configuration, or "is our agent
-  setup any good". Do not trigger for: reviewing application code in a diff (use
-  code-review); fixing factual drift in prose/architecture docs so they match the
-  code (use docs-refresh — that fixes doc ACCURACY; this judges harness
-  EFFECTIVENESS); BUILDING a specific guardrail/hook/check (use guardrail-author —
-  this only diagnoses that one is missing); standing up an eval/verification suite
-  (use eval-author); implementing the agent or its tools; or general Q&A.
+description: "Evidence-backed audit of an agent harness: rule files (AGENTS.md/CLAUDE.md), tools/MCP, hooks, permissions, context split, observability, with prioritized fixes; advisory only. Use when asked to audit an agent, Claude Code or Codex setup, judge AGENTS.md/CLAUDE.md quality, or explain why an agent keeps drifting or ignoring rules. Do not trigger for: doc accuracy (use docs-refresh), building one guardrail (use guardrail-author), evals (use eval-author), diff review (use code-review)."
 ---
 
 # Harness Audit

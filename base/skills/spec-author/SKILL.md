@@ -1,21 +1,6 @@
 ---
 name: spec-author
-description: >-
-  Turns a fuzzy feature request, idea, or ticket into a precise, testable
-  specification an agent can build against without re-deriving intent: a
-  problem statement (the why, before any solution), explicit scope and
-  NON-goals, acceptance criteria written as checkable assertions, enumerated
-  edge cases, interface/contract sketches, and an explicit criterion→eval
-  handoff. Use when asked to write a spec, turn an idea / ticket / PRD into
-  requirements or acceptance criteria, scope a feature before building, define
-  "done", or "spec this out". Do not trigger for: choosing between competing
-  architectures, data models, or a build-vs-buy / rewrite-vs-refactor call —
-  deciding the HOW (use design-tradeoff); writing the tests, evals, rubrics, or
-  datasets themselves (use eval-author — this skill specifies them and hands off);
-  implementing an already-specified feature; reviewing a diff (use code-review);
-  refreshing existing guidance docs or generating end-user / API reference docs
-  (use docs-refresh); summarizing where a session stands or producing a
-  resume / next-steps prompt for the next agent (use handoff); or general Q&A.
+description: "Turn a fuzzy request, idea or ticket into a testable spec: problem statement, scope and non-goals, checkable acceptance criteria, edge cases, interface sketch, criterion-to-eval handoff. Use when asked to write a spec, turn a ticket or PRD into acceptance criteria, scope a feature, or define done. Do not trigger for: choosing between architectures (use design-tradeoff), writing tests or evals (use eval-author), implementation, diff review (use code-review), handoffs (use handoff)."
 ---
 
 # Spec Author

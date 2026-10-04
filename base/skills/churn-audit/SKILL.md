@@ -1,16 +1,6 @@
 ---
 name: churn-audit
-description: >-
-  Produces a churn-driven architecture advisory: ranks unstable/hotspot files
-  by relative churn × complexity, surfaces cross-boundary change coupling and
-  ownership/bus-factor risk, and recommends boundary fixes tied to evidence.
-  Use when asked to audit hot spots, high-churn or repeatedly-edited files,
-  recent commit/PR activity, unstable areas, architectural risk, refactor
-  priorities, or "where is the codebase fighting itself". Advisory by default —
-  it diagnoses and recommends, it does not refactor.
-  Do not trigger for: reviewing a specific diff/PR before merge (use code-review),
-  general dead-code/de-slop cleanup (use simplify), implementing an
-  already-decided refactor, bug reproduction, or non-git-history questions.
+description: "Churn-driven architecture advisory: ranks hotspot files by churn x complexity, change coupling, bus-factor risk; recommends boundary fixes, does not refactor. Use when asked about hot spots, high-churn files, unstable areas, refactor priorities, or where the codebase is fighting itself. Do not trigger for: reviewing a diff (use code-review), dead-code cleanup (use simplify), bug repro."
 ---
 
 # Churn Audit
