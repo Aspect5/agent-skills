@@ -1,20 +1,6 @@
 ---
 name: guardrail-author
-description: >-
-  Generates DETERMINISTIC guardrails for a repo's danger surfaces —
-  pre-commit / pre-tool / CI checks that fail-closed on secrets, protected-branch
-  pushes, destructive commands, large files, or a named policy — as hook
-  scripts/config wired into the repo's agent harness (Claude Code hooks, Codex,
-  git hooks, or CI), each with a test that proves it FIRES on the bad case and
-  does NOT false-block the good case. Use when asked to add a guardrail or hook,
-  deterministically prevent the agent from doing X, block secrets / dangerous
-  commands / force-push to main, enforce a policy "the agent must never forget",
-  or harden the harness against one specific failure. Do not trigger for: auditing
-  the whole harness for what guardrails are MISSING (use harness-audit — it finds
-  the gap, this skill builds the named guardrail); reviewing a diff or PR (use
-  code-review); standing up evals for non-deterministic behavior (use eval-author);
-  writing runtime application authorization / business logic (that is app code, not
-  a harness guardrail); or general Q&A.
+description: "Build one deterministic fail-closed guardrail (pre-commit, PreToolUse hook, CI check) for a named danger surface: secrets, force-push, destructive commands, large files, a never-do-X policy, with tests that it fires and never false-blocks. Use when asked to add a guardrail or hook, block secrets or force-push to main, or enforce a policy deterministically. Do not trigger for: finding missing guardrails (use harness-audit), measuring quality (use eval-author), diff review (use code-review)."
 ---
 
 # Guardrail Author

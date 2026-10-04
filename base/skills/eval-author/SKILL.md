@@ -1,22 +1,6 @@
 ---
 name: eval-author
-description: >-
-  Stands up or strengthens a repo's verification suite: inventories what behavior
-  and agent surfaces lack verification, then scaffolds deterministic TESTS for
-  deterministic logic (input X -> output Y) AND EVALS for non-deterministic parts
-  (agent trajectory + generated-output quality) using labelled datasets, explicit
-  anchored rubrics, and calibrated LM-judge checks — with a runnable evals/ layout,
-  a pass/threshold-gated runner, and an honest coverage report. Use when asked to
-  add or improve evals, set up an eval/verification harness, write scoring rubrics,
-  regression-test a prompt/agent/LLM feature, measure generated-output quality, or
-  answer "how do we know this AI feature actually works". Do not trigger for:
-  reviewing a diff/PR (use code-review); reproducing and fixing one failing test
-  (use bug-swarm); writing a spec or acceptance criteria that DEFINE what correct
-  means (use spec-author — eval-author MEASURES against a spec, it does not author
-  one); auditing the agent harness/tool-surface/guardrail config itself (use
-  harness-audit); building a deterministic fail-closed hook/check that BLOCKS a
-  danger surface — secrets, force-push, a "never do X" policy — rather than
-  measuring quality (use guardrail-author); or general Q&A.
+description: "Stand up a verification suite: deterministic tests for deterministic logic plus evals (datasets, anchored rubrics, calibrated LM-judge) for agent/LLM output, with a threshold-gated runner. Use when asked to add evals, an eval harness, rubrics, regression-test a prompt or agent, measure output quality, or whether an AI feature works. Do not trigger for: diff review (use code-review), defining done (use spec-author), blocking hooks (use guardrail-author), harness audits (use harness-audit)."
 ---
 
 # Eval Author

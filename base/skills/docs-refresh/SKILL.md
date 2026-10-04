@@ -1,6 +1,6 @@
 ---
 name: docs-refresh
-description: 'Refresh repository guidance docs (AGENTS.md, CLAUDE.md, ARCHITECTURE.md, READMEs, onboarding/ADR pointers) from verified codebase evidence, fixing drift between docs and current code, commands, schemas, and CI. Produces an evidence-backed edit plan plus applied doc edits where the code-vs-doc mismatch is proven. Use when asked to update repo instructions, refresh architecture docs, sync docs with code, run a doc drift audit, fix stale CLAUDE.md/AGENTS.md/ARCHITECTURE.md, correct outdated commands or hot-path lists, or swarm-verify developer-workflow and architecture documentation. Do not trigger for writing brand-new feature or product docs from scratch, end-user/API reference generation, marketing/changelog copy, code review, or non-doc code changes (use code-review or simplify instead).'
+description: "Refresh repo guidance docs (AGENTS.md, CLAUDE.md, ARCHITECTURE.md, READMEs) from verified code evidence, fixing drift in commands, paths, schemas, CI. Use when asked to update repo instructions, sync docs with code, run a doc drift audit, or fix a stale CLAUDE.md. Do not trigger for: new feature docs, API reference, judging harness effectiveness (use harness-audit), code review (use code-review)."
 ---
 
 # Docs Refresh
